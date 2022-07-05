@@ -1,0 +1,62 @@
+Prerequesite:
+Java base image
+Tomcat package
+War file
+Dockerfile Structure:
+Java Image
+├─── tomcat
+
+
+Dockerfile for java based tomcat application:
+FROM  openjdk:8-jre-alpine
+RUN mkdir /opt/tomcat/
+WORKDIR /opt/tomcat/
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.63/bin/apache-tomcat-9.0.63.tar.gz /opt/tomcat/
+RUN tar -xvzf apache*.tar.gz
+RUN mv apache-tomcat-9.0.63/*  /opt/tomcat
+EXPOSE 8080
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+
+
+Explanation of instruction:
+FROM  This will set the base image for your Dockerfile
+RUN  Will execute commands
+WORKDIRDefine the working directory
+ADD Copy files from a URL. It can download an external file and copy it to the wanted destination.
+EXPOSE EXPOSE instruction informs Docker that the container listens on the specified network ports at runtime.
+CMD The CMD command specifies the instruction that is to be executed when a Docker container starts.
+Dockerfile demo: 
+Docker commands:
+Build the image using dockerfile:
+docker build  -t tomcat1 .
+ 
+Build the container image using the docker build command. -t flag tags our image . tomcat1 we named the image.
+Run the container using Docker image:
+docker run -td --name task1 tomcat1
+ 
+Run the container in the background using the -d attribute. Using detached mode also allows you to close the opened terminal session without stopping the container.
+Map the volume with host machine:
+docker run -v [/host/volume/location]:[/container/storage] [docker_image]
+docker run -td --name task2 -v /home/dhivya/examtrail/:/opt/tomcat/webapps/ tomcat1
+ 
+Bind the port in both host and container:
+docker run -p 8002:8080 [docker_image]
+docker run -td --name task3 -p 8002:8080 tomcat1
+ 
+To map Tomcat port 8080 in the container to port 8002 on the Docker host we would run.
+ 
+Container should start automatically, whenever host machine rebooted:
+unless-stopped – This functions similarly to always. The difference is that Docker won’t ever restart the container if it has been manually stopped.
+docker run -td --name task4 --restart unless-stopped tomcat1
+ 
+always – Docker will ensure the container is always running. If the container stops, it will be immediately restarted. You can still manually stop the container with docker stop but Docker will bring it back up next time the daemon restarts.
+docker run -td --name task5 --restart always tomcat1
+ 
+All task in single command:
+Dockerfile Demo All task in single command:
+docker run -td --name taskdemo -p 8003:8080 -v /home/dhivya/examtrail/:/opt/tomcat/webapps/ --restart unless-stopped tomcat1
+ 
+
+Application in browser:
+ 
+

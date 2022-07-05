@@ -1,0 +1,123 @@
+Publish docker image to Dockerhub using Jenkins pipeline:
+
+Prerequisite:
+Jenkins should be installed
+Github account
+DockerHub account
+structure of  python based application :
+├── app.py
+├── Dockerfile
+├── Jenkinsfile
+├── README.md
+└── requirements.
+Source code in Github account :  
+
+Integrated GitHub with Jenkins (using GitHub Credentials)
+Jenkins Dashboard->Manage Jenkins-> Manage Credential->Add New github and 
+Add Docker Hub Credentials.
+ 
+
+ 
+
+
+Create a Jenkins Pipeline Job:
+Now we will create a Jenkinsfile 
+pipeline {
+    agent {
+        label 'slave'
+    }    
+    environment {
+        http_proxy = 'http://127.0.0.1:3128/'
+        https_proxy = 'http://127.0.0.1:3128/'
+        ftp_proxy = 'http://127.0.0.1:3128/'
+        socks_proxy = 'socks://127.0.0.1:3128/'
+        docker_repo = "dhivyadhub/pydocker1"
+        DOCKERHUB_CREDENTIALS= credentials('dockerHub')
+    } 
+    stages {
+        stage ('Cleaning Local Images and Containers') {
+           steps {
+               sh 'docker stop $(docker ps -a -q) || true && docker rm $(docker ps -a -q) || true && docker rmi -f $(docker images -a -q) || true'
+           }
+        }
+        stage('Docker Build and Tag') {
+           steps {
+               sh 'docker build -t $docker_repo:$BUILD_NUMBER .' 
+            }  
+        }
+        stage('Run Docker container') {
+          steps {
+                sh 'docker run -d --name pythoncon -p 5008:5000 $docker_repo:$BUILD_NUMBER'
+            }
+        }
+        stage('Docker Testing') {
+          steps {
+                sh 'wget localhost:5008'
+            }
+        }
+        stage('DockerHub login and push the docker image') {
+          steps {
+            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin && docker push $docker_repo:$BUILD_NUMBER'
+           }
+        }    
+    }            
+}
+
+
+1.	 Firstly, we will build and tag the image
+2.	 Now we will use credentialId that we have configured in the above step for pushing the image to dockerhub. You need to provide complete repository name
+3.	Pull the image and run it as a docker container.
+4. You can directly clone the git repo and create a pipeline job and test it
+5. Create a pipeline job as shown below and trigger the build.
+ 
+
+Console output:  
+
+How Jenkins Pipeline will look like: 
+
+ 
+
+Web access using port:
+ 
+
+
+Python based Dockerfile:(Pydockerfile)
+FROM python:2.7-slim
+ENV http_proxy http://host.docker.internal:3128
+ENV https_proxy http://host.docker.internal:3128
+COPY . .
+WORKDIR /app
+RUN pip install -r requirements.txt
+EXPOSE 5000
+CMD ["python", "app.py"]
+pip is a recommended tool for installing Python packages
+
+requirements.txt
+Flask
+mysql-connector
+
+
+requirements.txt file contains the dependencies or packages required to run our application.
+Python script:(app.py)
+Importing flask module in the project is mandatory
+# An object of Flask class is our WSGI application.
+from flask import Flask
+
+# Flask constructor takes the name of
+# current module (__name__) as argument.
+app = Flask(__name__)
+
+# The route() function of the Flask class is a decorator,
+# which tells the application which URL should call
+# the associated function.
+@app.route('/')
+def hello_world():
+    return 'Hello World'
+
+# main driver function
+if __name__ == '__main__':
+
+    # run() method of Flask class runs the application
+    # on the local development server.
+    app.run(host='0.0.0.0', port=5000)
+The code for our simple Flask application.

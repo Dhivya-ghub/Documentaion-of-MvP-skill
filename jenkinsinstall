@@ -1,0 +1,218 @@
+Jenkins Installation and Configuration Setup
+	Linux Machine (ubuntu)
+	Install Java(jdk)
+	Proxy Configuration 
+
+Step-1: Java Installation:
+
+sudo apt-get install default-jdk && apt install default-jre -y
+ (java install default version 11)
+ 
+
+Step-2: Jenkins Installation:
+
+Ref: https://www.knowledgehut.com/blog/devops/install-jenkins-ubuntu
+Step-3: Jenkins Proxy Configuration Setup:
+•	Check Jenkins running or Not
+•	Start Jenkins service
+ 
+Proxy Configuration:
+https://inside-docupedia.bosch.com/confluence/display/MC/Mercur+-+Documentation+of+required+Targets+for+a+Jenkins+Proxy
+https://inside-docupedia.bosch.com/confluence/display/AAIOT/Jenkins#Jenkins-ProxyConfiguration
+  Jenkins Home Page: http://localhost:8080/
+
+ 
+Docker file build Image using Jenkins CI/CD Pipeline (Declarative Pipeline Script)
+Step1: Creating GitHub New Repository
+Step2: Push your code GitHub Repository
+Step3: Creating New Access Token GitHub Repository
+Step4:	Integrated GitHub with Jenkins (using GitHub Credentials)
+Jenkins Dashboard->Manage Jenkins-> Manage Credential->Add New 
+Add Docker Hub Credentials. 
+Step5: Creating Jenkin New Job
+Jenkins Dashboard ->New Item->Enter an item name (choose job like pipeline, freestyle job) 
+Step6: Configure Job: 
+General: This is sample pipeline job and build docker image, push docker hub.
+Build Trigger: CronTab Setup: URL: https://crontab.guru/
+*	*	*	*	*
+Minute	Hours	Day(Month)	Month	Day(Week)
+*any value
+, value list separated
+- range of values
+/ step values
+0-6 allowed values
+SUN-SAT alternative single values
+Build Periodically: build periodically builds the project periodically even if nothing has changed. Schedule you can create a schedule (or multiple schedules) for Jenkins to build periodically or on a specific date/time.
+Poll SCM: Poll SCM periodically polls the SCM to check whether changes were made (i.e. new commits) and builds the project if new commits where pushed since the last build, 
+Git Webhook:
+
+
+Pipeline:
+SCM: Git
+Repository URL: https://github.com/raghavendra1991/Sample_Docker_Image.git
+Credentials: GitHub
+Branches to build: */feature
+Script Path: Jenkinsfile
+Build Now (Run the Job)
+Source Code Repository:
+https://github.com/raghavendra1991/Sample_Docker_Image.git
+Standard repository structure:
+├── app.py
+├── Dockerfile
+├── init.sh
+├── Jenkinsfile
+├── requirements.txt
+└── src_data
+    └── app.py
+
+GitHub:
+
+ 
+
+Dockerfile: Python Based webapp
+# Use Python runtime (from parent Python image):
+FROM python:2.7-slim
+ 
+# Set working directory:
+WORKDIR /app
+ 
+# Copy current directory contents into the container at WORKDIR:
+ADD . /app
+ 
+# Set HTTP(S) proxy server:
+ENV http_proxy http://host.docker.internal:3128
+ENV https_proxy http://host.docker.internal:3128
+ 
+# Install any needed packages specified in requirements.txt:
+RUN pip install -r requirements.txt
+ 
+#  Output from python script app.py
+EXPOSE 80
+ 
+# Run app.py when the container launches
+CMD ["python", "app.py"]
+
+Python code: app.py
+from markupsafe import escape
+from flask import Flask, abort
+
+PORT = 80
+
+app = Flask(__name__)
+
+@app.route('/')
+@app.route('/index/')
+def hello():
+    return '<h1>Hello, World This is my first project !</h1>'
+
+@app.route('/about/')
+def about():
+    return '<h3>This is a Flask web application.</h3>'
+
+@app.route('/capitalize/<word>/')
+def capitalize(word):
+    return '<h1>{}</h1>'.format(escape(word.capitalize()))
+
+@app.route('/add/<int:n1>/<int:n2>/')
+def add(n1, n2):
+    return '<h1>{}</h1>'.format(n1 + n2)
+
+@app.route('/users/<int:user_id>/')
+def greet_user(user_id):
+    users = ['Bob', 'Jane', 'Adam']
+    try:
+        return '<h2>Hi {}</h2>'.format(users[user_id])
+    except IndexError:
+        abort(404)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=PORT)
+
+
+
+
+Jenkins file:
+// Declarative pipeline
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub')
+    }
+
+    stages {
+
+        stage ('Git Checkout') {
+            steps {
+                git branch: 'feature1', credentialsId: 'github', url: 'https://github.com/raghavendra1991/Sample_Docker_Image.git'
+            }
+        }
+        
+        stage ('Build Docker Image') {
+            steps {
+                sh 'docker build -t raghaduvva/python:$BUILD_NUMBER .'       
+            }
+        }
+
+        stage ('DockerHub Login') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR  --password-stdin'
+            }
+        }
+        stage ('Push') {
+            steps {
+                sh 'docker push raghaduvva/python:$BUILD_NUMBER'
+            }
+        }
+        stage ('Create Container') {
+            steps {
+                sh 'docker run -itd --name="webapp" -p 8082:80 raghaduvva/python:$BUILD_NUMBER'
+            }
+        }
+    }
+}
+
+
+
+Pipeline Basics: 
+1, agent: where (master/slave/container.) we need to run our pipeline script.
+2, stages: contains sequence of stages
+3, stage: Define particular stage (build/text/deploy/…) of our job, name will be display on the Jenkins dashboard.
+4, steps: We need to write step inside the stage directive. Steps contains (command/scripts) that we used in the build
+5, variable: predefined & userdefined 
+Predefined: http://localhost:8080/env-vars.html/
+Userdefined: variable we can define in root level or stage level
+--password-stdin : reads a password from a variable, and passes it to the docker login command using STDIN
+
+
+
+
+
+
+
+
+Pipeline:
+Create New Item: Pipeline Job
+ 
+
+Integrated with GitHub: *GitHub username and GitHub Password(Token)
+ 
+ 
+
+ 
+
+
+
+
+
+
+
+Jenkins Build: 
+ 
+
+Docker Hub:
+ 
+
+
+Issues:
+Proxy Configuration Setup
+

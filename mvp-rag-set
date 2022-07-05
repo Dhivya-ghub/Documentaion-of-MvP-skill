@@ -1,0 +1,257 @@
+MVP: 
+1.	Prerequisites
+2.	Repository Structure
+2.1	Workflow
+2.2 Jenkins Installation & Setup
+2.3 Configure Source code Management system (GitHub) in Jenkins
+2.4 Configure Docker Hub Credentials in Jenkins
+2.5	Jenkins file Description
+2.6 Build
+3.	Proxy Errors
+i)	Proxy Configuration after Jenkins Installation.
+ii)	We need to configure proxy Jenkins file under environment variable session
+ 
+
+1.	Prerequisites:
+	Install Docker & Jenkins (Linux Operating System)
+	GitHub Account (Source Code Management)
+	Docker Hub Account 
+2.	Repository Structure:
+          ├── data_vol
+          │   └── app.py
+          ├── Dockerfile
+          ├── init.sh
+          ├── Jenkinsfile
+          └── src_data
+                 ├── app.py
+                 └── requirements.txt
+2.1	Workflow:
+Create a docker file as below:
+# Use Python runtime (from parent Python image):
+FROM python:3.7-alpine
+# Set HTTP(S) proxy server:
+ENV http_proxy http://host.docker.internal:3128
+ENV https_proxy http://host.docker.internal:3128
+# Set working directory:
+WORKDIR /app
+# Copy current directory contents into the container at WORKDIR:
+ADD ./src_data /app
+# Install any needed packages specified in requirements.txt:
+RUN pip install -r requirements.txt
+#  Output from python script app.py
+EXPOSE 5000
+# Run app.py when the container launches
+CMD ["python", "app.py"]
+
+
+Build Image using the command:
+
+docker build -t falskapp .
+docker run -itd --name="webapp" -p 5000:5000 -v /home/duvva/mvp/data_vol:/app --restart unless-stopped falskapp:latest
+
+-d  Detached mode (working background)
+-t  interactive mode
+Always: unless docker daemon is stopped
+Unless-stopped: restarts always except manually stopped
+-p  Port Mapping 8080:80
+-v  Volume Mount Source directory: Destination directory
+
+									
+Docker-Compose:
+Repository Structure:
+├── app
+│   ├── Dockerfile
+│   └── src_data
+│       ├── app.py
+│       └── requirements.txt
+├── db
+│   ├── Dockerfile
+│   ├── init.sql
+│   └── password.env
+├── docker-compose.yml
+
+
+
+
+
+
+Docker Compose: URL: https://github.com/raghavendra1991/mvptask.git
+Docker-compose up -d\
+# Docker Compose File
+version: "3.3"
+services:
+  webapp:
+    build: ./app
+    container_name: webapp
+    ports: 
+      - "5000:5000"
+  db:
+    build: ./db
+    container_name: db
+    ports:
+      - "3310:3306"
+    env_file:
+      - ./db/password.env
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+
+2.2	Jenkins Installation & Setup:
+Url: https://www.jenkins.io/doc/book/installing/linux/
+Jenkins Workspace: /var/lib/jenkins/workspace
+
+2.3	Configure Source code Management system (GitHub) in Jenkins
+URL: https://github.com/raghavendra1991/mvp.git
+Jenkins Dashboard->Manage Jenkins-> Manage Credential->Add New 
+Add GitHub Credentials (User Name & Access Token).
+
+ 
+Select SCM Git in the Jenkins job and Provide GitHub URL and Drop GitHub credentials
+
+ 
+Provide Jenkinsfile Relative Path
+ 
+2.4	Configure Docker Hub Credentials in Jenkins
+
+ 
+
+
+
+
+
+
+2.5	Jenkins file Description:
+// Declarative pipeline
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB_REPO = "raghaduvva/flaskapp"
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub')
+        http_proxy = 'http://127.0.0.1:3128/'
+        https_proxy = 'http://127.0.0.1:3128/'
+        ftp_proxy = 'http://127.0.0.1:3128/'
+        socks_proxy = 'socks://127.0.0.1:3128/'
+    }
+
+    stages {
+
+        /* We do not need a stage for checkout here since it is done by default when using "Pipeline script from SCM" option. */
+        
+        stage ('Build Docker Image') {
+            steps {
+                echo 'Building Docker Image'
+                sh 'docker build -t $DOCKER_HUB_REPO:$BUILD_NUMBER .'       
+            }
+        }
+
+        stage ('Push Image ') {
+            steps {
+                echo 'Pushing Image'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR  --password-stdin'
+                sh 'docker push $DOCKER_HUB_REPO:$BUILD_NUMBER'
+            }
+        }
+        stage ('Delete Docker Image') {
+            steps {
+                sh 'docker rmi $DOCKER_HUB_REPO:$BUILD_NUMBER'
+            }
+        }
+    }
+}
+
+
+
+Pipeline Basics: 
+1, agent: where (master/slave/container.) we need to run our pipeline script.
+Any—any available agent
+2, stages: contains sequence of stages
+3, stage: Define particular stage (build/text/deploy/…) of our job, name will be display on the Jenkins dashboard.
+4, steps: We need to write step inside the stage directive. Steps contains (command/scripts) that we used in the build
+5, variable: predefined & userdefined 
+Predefined: http://localhost:8080/env-vars.html/
+Userdefined: variable we can define in root level or stage level
+* “$DOCKERHUB_CREDENTIALS" will contain string "USR:PSW"
+* "$DOCKERHUB_CREDENTAILS_USR" will contain string for Username
+* "$DOCKERHUB_CREDENTIALS_PSW" will contain string for Password
+  -p, --password string   Password
+      --password-stdin    Take the password from stdin
+  -u, --username string   Username
+/* -----------------*/ Multiline comment
+// -single line comment
+| --A pipe allows the output of one command to be forwarded to the input of the next command
+
+|| Logical OR
+
+--password-stdin : reads a password from a variable, and passes it to the docker login command using STDIN
+
+Build Trigger: CronTab Setup: URL: https://crontab.guru/
+30 15 * * * ---- its work every day 3.30pm 
+*	*	*	*	*
+Minute	Hours	Day(Month)	Month	Day(Week)
+*any value
+, value list separated
+- range of values
+/ step values
+0-6 allowed values
+SUN-SAT alternative single values
+Build Periodically: build periodically builds the project periodically even if nothing has changed. Schedule you can create a schedule (or multiple schedules) for Jenkins to build periodically or on a specific date/time.
+Poll SCM: Poll SCM periodically polls the SCM to check whether changes were made (i.e. new commits) and builds the project if new commits where pushed since the last build
+Build:
+
+ 
+
+
+ 
+
+
+DockerHub:
+ 
+
+
+
+3.Issues:
+i)	Proxy Configuration after Jenkins Installation.
+URL: https://inside-docupedia.bosch.com/confluence/display/AAIOT/Jenkins#Jenkins-ProxyConfiguration
+
+URL/Server	rb-proxy-in.bosch.com
+Port	8080
+User/Benutername	JEA9PL (our technical user)
+Passwort	Section "Jenkins technical user" at Credentials
+
+No Proxy Host/Proxy-Ausnahmen	*.bosch.com
+localhost
+127.0.0.1
+10.*
+192.168.*
+172.17.0.1
+
+
+
+ii)	We need to configure proxy Jenkins file under environment variable session
+
+
+triggers {
+        cron "H H * * *"
+}
+environment {
+        http_proxy = 'http://127.0.0.1:3128/'
+        https_proxy = 'http://127.0.0.1:3128/'
+        ftp_proxy = 'http://127.0.0.1:3128/'
+        socks_proxy = 'socks://127.0.0.1:3128/'
+    }
+
+
+
+stage ('Git Checkout') {
+            steps {
+                    git branch: 'master', credentialsId: 'github', url: 'https://github.com/raghavendra1991/Sample_Docker_Image.git'
+                }
+        }
+
+pipeline {
+      agent  {
+	label ‘slave’
+      }
+
+
+Labels represent a way of naming one or more slaves

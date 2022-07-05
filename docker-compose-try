@@ -1,0 +1,57 @@
+first install docker-compose
+docker-compose.yaml up
+docker-compose -f demo.yaml up -d (demon mode application start)
+Entire application down
+docker-compose -f demo.yaml down
+docker-compose up --build -d  (rebuild if any changes made in application)
+
+
+-->Version:we’ll start off by defining the schema version. In most cases, it’s best to use the latest supported version
+---Services :we’ll define the list of services (or containers) we want to run as part of our application.
+--->efine the service entry and the image for the container. We can pick any name for the service
+app:
+ Image name :
+
+migrate the -p 3000:3000 part of the command by defining the ports for the service:
+ ports:
+       - 3000:3000
+
+ start your MySQL container from the image:
+
+$ docker run -d -p 3306:3306 --name my-mysql \ -e MYSQL_ROOT_PASSWORD=supersecret my-mysql
+
+---->mysql -uroot -p 
+inside the container mysql -u root -p, using sheep, as the password, will be the only way to connect to the mysql server.)
+--->mysql> use company;
+After you access a database, you can run SQL queries, list tables, and so on.
+show columns from employees;
+select * from employees;
+
+insert into test_table values('deploy', 'green');
+directly show the database command:
+mysql --host 127.0.0.1 --port 5000 -u root -proot
+Create a table:
+CREATE TABLE person (name VARCHAR(20), lastname VARCHAR(10));
+
+node {
+     checkout scm   
+    stage ('Cleaning Local Images and Containers') {
+                 sh 'docker stop $(docker ps -a -q) || true && docker rm $(docker ps -a -q) || true && docker rmi -f $(docker images -a -q) || true'
+     }
+    stage('docker-compose build ') {
+                 sh 'docker-compose build && docker-compose up -d'
+    }
+    stage('docker containers testing') {
+                 sh 'wget localhost:5001' 
+    }   
+    stage('docker images  push') {
+        withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
+                sh 'docker push dhivyadhub/pythonapp:1 && docker push dhivyadhub/sqlapp:1'
+               } 
+    }     
+}
+
+
+
+
+

@@ -1,0 +1,111 @@
+Task 	Duration 	Demo	Reviewer	Sign off
+
+    Create dockerfile using the Python based project
+    Deploy the image in standalone container and show demo 
+        Map the volume with host machine
+        Bind the port in both host and container
+        Container should start automatically, whenever host machine rebooted
+    Documentation with Docker Image & Dockerfile best practice  
+
+	
+
+3 days
+	
+
+01 Oct 2021 
+	
+
+Prasanna Ravichandran (MS/ESW3-XC) Naga Sulochana Gali (MS/ESW3-XC) Murali Krishna Rajendran (MS/ESW3-XC)
+	
+
+Approved01 Oct 2021 
+Intermediate:
+
+
+Follow the above image and deploy on the azure cloud using Devops tools and lifecycle
+
+    Application
+        Update the above dockerfile as docker-compose with frontend and backend, Create new image file
+        Store the image docker repo (Azure container registry) 
+    Infrastructure
+        Create Terraform/ARM script to provision the Azure virtual machine and configure the docker installation  - On Hold due to no azure access.
+    Deployment 
+        Check the source code in Git with Jenkins file, Setup Jenkins environment in local machine with required plugins
+        Trigger the deployment from Jenkins for infra and application setup
+
+	~7 days	
+
+20 Oct 2021 
+	
+
+Prasanna Ravichandran (MS/ESW3-XC) Naga Sulochana Gali (MS/ESW3-XC) Murali Krishna Rajendran (MS/ESW3-XC)
+	
+
+Azure Access: Prasanna Ravichandran (MS/ESW3-XC)
+
+Git Access: 
+
+Prasanna Ravichandran (MS/ESW3-XC)
+	
+Advance
+Assignment 1
+
+Follow the intermediate assignment and deploy in the AKS / EKS cluster 
+
+Duration: 
+
+Demo on 
+Assignment 2
+
+ MEDIAWIKI PROBLEM STATEMENT
+
+We want to automate the deployment of MediaWiki using.
+
+    Kubernetes with Helm Chart/ any equivalent automation
+    CFT with Any Configuration Management Tool (Only for AWS). If any
+    Terraform with any Configuration Management tool integrated.
+
+Choose only one of your comfort.
+
+The above automation should support CI/CD practices of chosen deployment style like Rolling Update or BlueGreen Deployment. (Optional)
+
+Duration: 
+
+Demo on 
+
+(No Docker compose)
+
+We want to assess your learnability and your current knowledge of config management systems.
+
+Things we expect:
+
+    We expect this to be installed using these steps.
+    Make sure your code is proper functional and executable code in your AWS/Azure of GCP environment or Kubernetes Cluster.
+    All the code should be published to any Public GIT repository and share that link. (Ensure you do not keep any credentials like AWS Access Keys/ GCP Credentials JSON)
+    Add proper README steps / screenshots (if any if you want to share) of how to run the automation.
+    If you see any issues scaling this application, please provide suggestions as a document that you might have for resolving them.
+
+
+Workflow: GIT(optional personnel account) → Jenkins → Azure cloud → Infra & Application deployment
+
+Eligibity Criteria:
+
+    Fully automate pipeline with manual intervention except one click deployment
+    Code should have ReadMe which explains the process / application commits
+
+
+Action Item:
+
+Naga Sulochana Gali (MS/ESW3-XC) 
+
+    Uploaded the python assignment in ESW3 Bitbucket repository 
+    Bitbucket repo link: https://sourcecode01.de.bosch.com/scm/skbc/esw3_mvp.git to fork into local machine and the branch is Browse Skill_Bootcamp / ESW3_mvp - Source Code 01 (bosch.com)
+
+Technologies:
+
+Application Name: QR code generate for plants in the Garden
+
+    Front End : Python by using Flask UI
+    Backend : SQL Database
+
+Note: Primary Azure cloud & Secondary AWS cloud

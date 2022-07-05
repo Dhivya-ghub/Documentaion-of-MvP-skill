@@ -1,0 +1,62 @@
+Docker command for Mvp1 task
+docker command for Build the image:
+===>docker build -t myimage:latest
+
+docker run container command
+docker run -itd --name tom(name of the container) tomcat(image name)
+====>docker run -itd --name tom tomcat
+
+Using detached mode also allows you to close the opened terminal session without stopping the container.
+
+The command for running a container in the background is:
+
+docker container run -d [docker_image]
+
+execution of within container:
+===> docker exec -it volumemap4 //bin/sh (git bash)
+
+Delete the all image expect one:
+====>docker image rm -f $(docker images -a | grep -v "put_image_id_here" | awk 'NR>1 {print $3}')
+
+
+its remove the all running container
+====>docker rm -f $(docker ps -qa)
+
+Mapping volume and with port and restart
+docker run -it -d -p 8005:8080 --name webapp5 -v /home/dhivya/source_data/:/opt/tomcat/webapps/ --restart unless-stopped  mvp1
+
+mapping with port:
+docker run -p <host port>:<container port> imagename
+ ===>docker run -itd -p 8001:8080 --name portmap mvp1
+
+mapping volume:
+docker run -v <host-path>:<container-path> <image-id>
+====>docker run -itd --name volumemap4 -v /home/dhivya/source_data/:/opt/tomcat/webapps/ mvp1
+
+here one doubt if deleted war file in container its reflecting sample file and host path source_data also.
+then if container deleted host path source-data not .
+
+Restart always:
+docker run -itd --name volumemap4 --restart always mvp1
+When we stop container then we gave restart docker desktop its automatically run the container.
+
+Restart update unless-stopped
+Stop and remove all container and images:    
+List all containers (only IDs) docker ps -aq.
+    Stop all running containers. docker stop $(docker ps -aq)
+    Remove all containers. docker rm $(docker ps -aq)
+    Remove all images. docker rmi $(docker images -q)
+
+=====>docker run -itd --name volumemap4 --restart unless-stopped mvp1
+When we stop container then we gave restart docker desktop its automatically  not run the container.
+
+
+
+To start a container and set it to restart automatically on system reboot use:
+using this command which container we gave stop docker container that in stopped stage only .and  which container running that container when we restart our hostmachine that time running conntiner in running stage and stoped container in stoped staged.
+Container should start automatically, whenever host machine rebooted:
+docker run -d --restart unless-stopped ecstatic_ritchie
+
+
+mount-when container dont have folder its automatically create and reflected both side,
+and if deleted container that volume stored in docker ar
